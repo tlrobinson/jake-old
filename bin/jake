@@ -1,0 +1,52 @@
+#!/usr/bin/env narwhal
+
+global.jake = require("jake");
+
+var file = require("file");
+
+var parser = new (require("args").Parser)();
+
+parser.option("-f", "--jakefile", "jakefile")
+    .help("Use FILE as the jakefile.")
+    .def("Jakefile")
+    .set();
+
+parser.option("-T", "--tasks", "showTasks")
+    .help("Use FILE as the jakefile.")
+    .set(true);
+
+parser.option("-t", "--trace", "trace")
+    .help("Turn on invoke/execute tracing, enable full backtrace.")
+    .set(true);
+
+exports.main = function main(args) {
+    var options = parser.parse(args);
+
+    jake.trace = options.trace;
+
+    if (!file.isFile(options.jakefile))
+        throw "Missing Jakefile";
+
+    if (!file.isAbsolute(options.jakefile))
+        options.jakefile = file.join(file.cwd(), options.jakefile);
+
+    var jakeconfig = require(options.jakefile);
+
+    if (options.showTasks) {
+        for (var taskName in jake.tasks) {
+            print(taskName);
+        }
+        return;
+    }
+
+    if (args.length === 0) {
+        jake.run("default");
+    }
+    else {
+        for (var i = 0; i < args.length; i++)
+            jake.run(args[i]);
+    }
+}
+
+if (module.id == require.main)
+    exports.main(system.args);
