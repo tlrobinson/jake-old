@@ -1,28 +1,20 @@
 var file = require("file");
 
-jake.task("foo").deps(["bar"]);
-jake.task("bar").deps(["foo"]);
+// circular
+jake.task("circular").deps("foo1");
+jake.task("foo1").deps(["foo2"]);
+jake.task("foo2").deps(["foo1"]);
 
+// example
 jake.task("build").deps(["generate_html", "copy_images"]);
-
 jake.task("generate_html").deps(["create_directories"]).action(function() {
     print("generate_html!");
 });
-
 jake.task("copy_images").deps(["create_directories"]).action(function() {
     print("copy_images!");
 });
-
 jake.task("create_directories").action(function() {
     print("create_directories!");
-});
-
-jake.task("baz").action(function() {
-    print("baz")
-});
-
-jake.task("buzz").action(function() {
-    print("buzz")
 });
 
 jake.file("foobar").deps(["barfoo"]).action(function() {
@@ -36,4 +28,7 @@ jake.file("barfoo").action(function() {
 
 jake.directory("barrr/baz/foo");
 
-jake.task("default").deps("build");
+jake.task("fooo").deps("Jakefile")
+
+// defaut
+jake.task("default").deps(["build", "fooo", "barrr/baz/foo"]);
