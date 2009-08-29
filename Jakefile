@@ -1,34 +1,42 @@
 var file = require("file");
 
-// circular
-jake.task("circular").deps("foo1");
-jake.task("foo1").deps(["foo2"]);
-jake.task("foo2").deps(["foo1"]);
+with(require("jake")) {
 
-// example
-jake.task("build").deps(["generate_html", "copy_images"]);
-jake.task("generate_html").deps(["create_directories"]).action(function() {
-    print("generate_html!");
-});
-jake.task("copy_images").deps(["create_directories"]).action(function() {
-    print("copy_images!");
-});
-jake.task("create_directories").action(function() {
-    print("create_directories!");
-});
+    // circular
+    task("circular").dep("foo1");
+    task("foo1").dep(["foo2"]);
+    task("foo2").dep(["foo1"]);
 
-jake.file("foobar").deps(["barfoo"]).action(function() {
-    print("writing");
-    file.write("foobar", "baz");
-})
+    // example
+    task("build").dep(["generate_html", "copy_images"]);
+    task("generate_html").dep(["create_directories"]).action(function() {
+        print("generate_html!");
+    });
+    task("copy_images").dep(["create_directories"]).action(function() {
+        print("copy_images!");
+    });
+    task("create_directories").action(function() {
+        print("create_directories!");
+    });
 
-jake.file("barfoo").action(function() {
-    print("barfoo");
-});
+    file("foobar").dep(["barfoo"]).action(function() {
+        print("writing");
+        file.write("foobar", "baz");
+    })
 
-jake.directory("barrr/baz/foo");
+    file("barfoo").action(function() {
+        print("barfoo");
+    });
 
-jake.task("fooo").deps("Jakefile")
+    directory("barrr/baz/foo");
 
-// defaut
-jake.task("default").deps(["build", "fooo", "barrr/baz/foo"]);
+    task("fooo").dep("Jakefile")
+
+    // defaut
+    task("default").dep(["build", "fooo", "barrr/baz/foo"]);
+
+
+    task("a1").dep("b1").action(function() {
+        print("a1")
+    });
+}

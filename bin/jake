@@ -21,7 +21,7 @@ parser.option("-t", "--trace", "trace")
 
 exports.main = function main(args) {
     var options = parser.parse(args);
-
+    
     jake.trace = options.trace;
 
     if (!file.isFile(options.jakefile))
@@ -30,21 +30,27 @@ exports.main = function main(args) {
     if (!file.isAbsolute(options.jakefile))
         options.jakefile = file.join(file.cwd(), options.jakefile);
 
-    var jakeconfig = require(options.jakefile);
+    // add jake methods to global
+    // FIXME: should we really?
+    jake.methods.forEach(function(method) {
+        global[method] = jake[method];
+    });
+        
+    var jakeContext = jake.load(options.jakefile);
 
     if (options.showTasks) {
-        for (var taskName in jake.tasks) {
+        for (var taskName in jakeContext.tasks) {
             print(taskName);
         }
         return;
     }
 
     if (args.length === 0) {
-        jake.run("default");
+        jakeContext.run("default");
     }
     else {
         for (var i = 0; i < args.length; i++)
-            jake.run(args[i]);
+            jakeContext.run(args[i]);
     }
 }
 
